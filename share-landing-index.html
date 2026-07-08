@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Oh My Pet!</title>
+<style>
+  :root{
+    --bg1:#6a3fd1; --bg2:#a05fe0;
+    --card:#ffffff; --text:#2b1a4a; --muted:#7a6a99;
+    --accent:#ff5f9e;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .card{
+    background:var(--card); color:var(--text);
+    border-radius:24px; max-width:420px; width:100%;
+    padding:32px 24px; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .logo{ font-size:52px; margin-bottom:4px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--muted); font-size:14px; margin-bottom:20px; }
+  .info{
+    background:#f6f2ff; border-radius:16px; padding:16px 18px;
+    margin-bottom:22px; text-align:left;
+  }
+  html[dir="rtl"] .info{ text-align:right; }
+  .info-row{ margin-bottom:8px; font-size:15px; }
+  .info-row:last-child{ margin-bottom:0; }
+  .info-label{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.03em; display:block; }
+  .info-value{ font-weight:600; }
+  .question{ font-style:italic; }
+  .btn{
+    display:block; width:100%; border:none; border-radius:14px;
+    padding:15px 18px; font-size:16px; font-weight:700;
+    cursor:pointer; text-decoration:none; margin-bottom:12px;
+    transition:transform .1s ease;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:var(--accent); color:#fff; }
+  .btn-secondary{ background:#efeaff; color:var(--text); }
+  .hint{ color:var(--muted); font-size:12px; margin-top:8px; }
+  .placeholder{ color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🐾</div>
+    <h1>Oh My Pet!</h1>
+    <div class="sub" id="subText"></div>
+
+    <div class="info" id="infoBox">
+      <div class="placeholder" id="loadingText"></div>
+    </div>
+
+    <a class="btn btn-primary" id="openAppBtn" href="#"></a>
+    <a class="btn btn-secondary" id="storeBtn" href="https://play.google.com/store/apps/details?id=com.ohmypet.app"></a>
+
+    <div class="hint" id="hint"></div>
+  </div>
+
+<script>
+  // ---------------------------------------------------------------
+  // I18N szótár – ugyanaz a 16 nyelv, mint a fő appban
+  // ---------------------------------------------------------------
+  const I18N = {
+    hu: { sub:"Valaki megosztott veled egy döntést", from:"Kitől", when:"Mikor", question:"Kérdés",
+          loading:"Adatok betöltése...", generic:"Egy titkos döntés vár rád az appban! 🎲",
+          noData:"Nyisd meg az Oh My Pet! appot a döntésekhez.",
+          btnOpen:"🎯 Megnézem az appban", btnStore:"📲 Letöltés / Telepítés",
+          hint:"Ha már telepítve van az app, a fenti gomb megnyitja benne a döntést." },
+    en: { sub:"Someone shared a decision with you", from:"From", when:"When", question:"Question",
+          loading:"Loading data...", generic:"A secret decision awaits you in the app! 🎲",
+          noData:"Open the Oh My Pet! app to see decisions.",
+          btnOpen:"🎯 Open in the app", btnStore:"📲 Download / Install",
+          hint:"If the app is already installed, the button above will open the decision inside it." },
+    es: { sub:"Alguien compartió una decisión contigo", from:"De", when:"Cuándo", question:"Pregunta",
+          loading:"Cargando datos...", generic:"¡Una decisión secreta te espera en la app! 🎲",
+          noData:"Abre la app Oh My Pet! para ver las decisiones.",
+          btnOpen:"🎯 Ver en la app", btnStore:"📲 Descargar / Instalar",
+          hint:"Si la app ya está instalada, el botón de arriba abrirá la decisión dentro de ella." },
+    zh: { sub:"有人和你分享了一个决定", from:"来自", when:"时间", question:"问题",
+          loading:"正在加载数据...", generic:"一个神秘的决定正在应用中等着你！🎲",
+          noData:"打开 Oh My Pet! 应用查看决定。",
+          btnOpen:"🎯 在应用中查看", btnStore:"📲 下载/安装",
+          hint:"如果已安装应用，上面的按钮会在应用内打开该决定。" },
+    hi: { sub:"किसी ने आपके साथ एक फैसला साझा किया है", from:"किससे", when:"कब", question:"सवाल",
+          loading:"डेटा लोड हो रहा है...", generic:"ऐप में एक रहस्यमयी फैसला आपका इंतज़ार कर रहा है! 🎲",
+          noData:"फैसलों के लिए Oh My Pet! ऐप खोलें।",
+          btnOpen:"🎯 ऐप में देखें", btnStore:"📲 डाउनलोड / इंस्टॉल करें",
+          hint:"अगर ऐप पहले से इंस्टॉल है, तो ऊपर वाला बटन फैसले को ऐप के अंदर खोल देगा।" },
+    ar: { sub:"شارك أحدهم قرارًا معك", from:"من", when:"متى", question:"السؤال",
+          loading:"جارٍ تحميل البيانات...", generic:"قرار سري في انتظارك داخل التطبيق! 🎲",
+          noData:"افتح تطبيق Oh My Pet! لرؤية القرارات.",
+          btnOpen:"🎯 عرضه في التطبيق", btnStore:"📲 تنزيل / تثبيت",
+          hint:"إذا كان التطبيق مثبتًا بالفعل، فسيفتح الزر أعلاه القرار داخله." },
+    pt: { sub:"Alguém compartilhou uma decisão com você", from:"De", when:"Quando", question:"Pergunta",
+          loading:"Carregando dados...", generic:"Uma decisão secreta te espera no app! 🎲",
+          noData:"Abra o app Oh My Pet! para ver as decisões.",
+          btnOpen:"🎯 Ver no app", btnStore:"📲 Baixar / Instalar",
+          hint:"Se o app já estiver instalado, o botão acima abrirá a decisão nele." },
+    bn: { sub:"কেউ আপনার সাথে একটি সিদ্ধান্ত শেয়ার করেছে", from:"কার কাছ থেকে", when:"কখন", question:"প্রশ্ন",
+          loading:"ডেটা লোড হচ্ছে...", generic:"অ্যাপে একটি গোপন সিদ্ধান্ত আপনার জন্য অপেক্ষা করছে! 🎲",
+          noData:"সিদ্ধান্তগুলো দেখতে Oh My Pet! অ্যাপ খুলুন।",
+          btnOpen:"🎯 অ্যাপে দেখুন", btnStore:"📲 ডাউনলোড / ইনস্টল করুন",
+          hint:"অ্যাপ আগে থেকে ইনস্টল থাকলে, উপরের বোতামটি সিদ্ধান্তটি অ্যাপের ভিতরে খুলবে।" },
+    ru: { sub:"Кто-то поделился с вами решением", from:"От кого", when:"Когда", question:"Вопрос",
+          loading:"Загрузка данных...", generic:"Тайное решение ждёт вас в приложении! 🎲",
+          noData:"Откройте приложение Oh My Pet!, чтобы увидеть решения.",
+          btnOpen:"🎯 Открыть в приложении", btnStore:"📲 Скачать / Установить",
+          hint:"Если приложение уже установлено, кнопка выше откроет решение прямо в нём." },
+    ja: { sub:"誰かがあなたに決定を共有しました", from:"差出人", when:"日時", question:"質問",
+          loading:"データを読み込み中...", generic:"アプリの中で秘密の決定があなたを待っています！🎲",
+          noData:"決定を見るには Oh My Pet! アプリを開いてください。",
+          btnOpen:"🎯 アプリで見る", btnStore:"📲 ダウンロード / インストール",
+          hint:"アプリがすでにインストールされている場合、上のボタンでアプリ内に決定が表示されます。" },
+    fr: { sub:"Quelqu'un a partagé une décision avec vous", from:"De la part de", when:"Quand", question:"Question",
+          loading:"Chargement des données...", generic:"Une décision secrète vous attend dans l'application ! 🎲",
+          noData:"Ouvrez l'application Oh My Pet ! pour voir les décisions.",
+          btnOpen:"🎯 Voir dans l'application", btnStore:"📲 Télécharger / Installer",
+          hint:"Si l'application est déjà installée, le bouton ci-dessus ouvrira la décision à l'intérieur." },
+    de: { sub:"Jemand hat eine Entscheidung mit dir geteilt", from:"Von", when:"Wann", question:"Frage",
+          loading:"Daten werden geladen...", generic:"Eine geheime Entscheidung wartet in der App auf dich! 🎲",
+          noData:"Öffne die Oh My Pet!-App, um Entscheidungen zu sehen.",
+          btnOpen:"🎯 In der App ansehen", btnStore:"📲 Herunterladen / Installieren",
+          hint:"Falls die App bereits installiert ist, öffnet der Button oben die Entscheidung darin." },
+    ko: { sub:"누군가 당신과 결정을 공유했습니다", from:"보낸 사람", when:"시간", question:"질문",
+          loading:"데이터 로딩 중...", generic:"앱 안에 비밀 결정이 당신을 기다리고 있어요! 🎲",
+          noData:"결정을 보려면 Oh My Pet! 앱을 여세요.",
+          btnOpen:"🎯 앱에서 보기", btnStore:"📲 다운로드 / 설치",
+          hint:"앱이 이미 설치되어 있다면, 위 버튼을 누르면 앱 안에서 결정이 열립니다." },
+    id: { sub:"Seseorang membagikan sebuah keputusan kepada Anda", from:"Dari", when:"Kapan", question:"Pertanyaan",
+          loading:"Memuat data...", generic:"Sebuah keputusan rahasia menunggumu di dalam aplikasi! 🎲",
+          noData:"Buka aplikasi Oh My Pet! untuk melihat keputusan.",
+          btnOpen:"🎯 Lihat di aplikasi", btnStore:"📲 Unduh / Instal",
+          hint:"Jika aplikasi sudah terpasang, tombol di atas akan membuka keputusan di dalamnya." },
+    tr: { sub:"Biri seninle bir karar paylaştı", from:"Kimden", when:"Ne zaman", question:"Soru",
+          loading:"Veriler yükleniyor...", generic:"Uygulamada gizli bir karar seni bekliyor! 🎲",
+          noData:"Kararları görmek için Oh My Pet! uygulamasını aç.",
+          btnOpen:"🎯 Uygulamada gör", btnStore:"📲 İndir / Yükle",
+          hint:"Uygulama zaten yüklüyse, yukarıdaki düğme kararı uygulama içinde açar." },
+    it: { sub:"Qualcuno ha condiviso una decisione con te", from:"Da", when:"Quando", question:"Domanda",
+          loading:"Caricamento dati...", generic:"Una decisione segreta ti aspetta nell'app! 🎲",
+          noData:"Apri l'app Oh My Pet! per vedere le decisioni.",
+          btnOpen:"🎯 Vedi nell'app", btnStore:"📲 Scarica / Installa",
+          hint:"Se l'app è già installata, il pulsante sopra aprirà la decisione al suo interno." }
+  };
+  const RTL_LANGS = ['ar'];
+
+  // ---------------------------------------------------------------
+  // Nyelv felismerése: 1) a látogató telefonjának/böngészőjének
+  // nyelvbeállítása, 2) ha az nincs a listában, a linkbe ágyazott
+  // "lang" paraméter (a küldő nyelve), 3) végső esetben angol.
+  // ---------------------------------------------------------------
+  function detectLang(urlLangParam) {
+    const supported = Object.keys(I18N);
+    const prefs = [];
+    if (Array.isArray(navigator.languages)) prefs.push(...navigator.languages);
+    if (navigator.language) prefs.push(navigator.language);
+    for (const p of prefs) {
+      const short = p.toLowerCase().split('-')[0];
+      if (supported.includes(short)) return short;
+    }
+    if (urlLangParam) {
+      const short = urlLangParam.toLowerCase().split('-')[0];
+      if (supported.includes(short)) return short;
+    }
+    return 'en';
+  }
+
+  // --- Query paraméterek beolvasása ---
+  const params = new URLSearchParams(window.location.search);
+  const d = params.get('d');
+  const t = params.get('t');
+  const h = params.get('h');
+  const n = params.get('n');
+  const q = params.get('q');
+  const urlLang = params.get('lang');
+
+  const lang = detectLang(urlLang);
+  const L = I18N[lang];
+  document.documentElement.lang = lang;
+  if (RTL_LANGS.includes(lang)) document.documentElement.dir = 'rtl';
+
+  function safeDecode(b64) {
+    try { return decodeURIComponent(escape(atob(decodeURIComponent(b64)))); }
+    catch(e) { return null; }
+  }
+
+  const nickname = n ? safeDecode(n) : null;
+  const question = q ? safeDecode(q) : null;
+  let dateStr = null;
+  if (t) {
+    const ts = parseInt(t, 10);
+    if (!isNaN(ts)) {
+      const date = new Date(ts);
+      dateStr = date.toLocaleDateString(lang) + ' ' + date.toLocaleTimeString(lang, {hour:'2-digit', minute:'2-digit'});
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // --- Statikus szövegek kitöltése a felismert nyelven ---
+  document.getElementById('subText').textContent = L.sub;
+  document.getElementById('loadingText').textContent = L.loading;
+  document.getElementById('openAppBtn').textContent = L.btnOpen;
+  document.getElementById('storeBtn').textContent = L.btnStore;
+  document.getElementById('hint').textContent = L.hint;
+
+  // --- Infó doboz feltöltése ---
+  const infoBox = document.getElementById('infoBox');
+  if (d && t) {
+    let html = '';
+    if (nickname) {
+      html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.from) +
+              '</span><span class="info-value">' + escapeHtml(nickname) + '</span></div>';
+    }
+    if (dateStr) {
+      html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.when) +
+              '</span><span class="info-value">' + dateStr + '</span></div>';
+    }
+    if (question) {
+      html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.question) +
+              '</span><span class="info-value question">„' + escapeHtml(question) + '”</span></div>';
+    }
+    if (!html) html = '<div class="placeholder">' + escapeHtml(L.generic) + '</div>';
+    infoBox.innerHTML = html;
+  } else {
+    infoBox.innerHTML = '<div class="placeholder">' + escapeHtml(L.noData) + '</div>';
+  }
+
+  // --- App megnyitó gomb ---
+  const appUrl = 'ohmypet://r?' + window.location.search.replace(/^\?/, '');
+  document.getElementById('openAppBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.location.href = appUrl;
+  });
+</script>
+</body>
+</html>
