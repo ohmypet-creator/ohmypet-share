@@ -1,0 +1,46 @@
+{
+  "downloads": 2,
+  "target": 10,
+  "refresh_hours": 0,
+  "visible": true,
+  "animals": {
+    "1": {
+      "unlocked": true,
+      "type": "free"
+    },
+    "2": {
+      "unlocked": true,
+      "type": "community"
+    },
+    "3": {
+      "unlocked": false,
+      "type": "paid"
+    },
+    "4": {
+      "unlocked": false,
+      "type": "soon"
+    }
+  },
+  "ads": [
+    {
+      "id": "book1",
+      "visible": false,
+      "link": "https://books2read.com/u/mKZpKV",
+      "image": "https://...",
+      "text": {
+        "hu": "Megjelent a könyvem! 📖",
+        "en": "My book is out! 📖"
+      }
+    },
+    {
+      "id": "openart",
+      "visible": true,
+      "link": "https://openart.ai",
+      "image": "https://drive.google.com/uc?export=view&id=1Q_Es6-lJom7t3A8XE8FvLy0stE4gchMc",
+      "text": {
+        "hu": "AI képgeneráló 🎨",
+        "en": "AI image generator 🎨"
+      }
+    }
+  ]
+}
