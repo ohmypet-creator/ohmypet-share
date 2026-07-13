@@ -1,8 +1,9 @@
 {
   "downloads": 2,
-  "target": 10,
+  "target": 50,
   "refresh_hours": 0,
   "visible": true,
+  "early_access_deadline": null,
   "animals": {
     "1": {
       "unlocked": true,
