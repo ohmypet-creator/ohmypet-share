@@ -6,12 +6,12 @@
   "early_access_deadline": null,
   "animals": {
     "1": {
-      "unlocked": false,
+      "unlocked": true,
       "type": "free"
     },
     "2": {
-      "unlocked": false,
-      "type": "community"
+      "unlocked": true,
+      "type": "free"
     },
     "3": {
       "unlocked": false,
@@ -35,9 +35,9 @@
     },
     {
       "id": "openart",
-      "visible": false,
+      "visible": true,
       "link": "https://openart.ai",
-      "image": "https://drive.google.com/uc?export=view&id=1Q_Es6-lJom7t3A8XE8FvLy0stE4gchMc",
+      "image": "https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/Screenshot_2026-06-20-22-20-03-593_com.android.chrome-edit.jpg",
       "text": {
         "hu": "AI képgeneráló 🎨",
         "en": "AI image generator 🎨"
