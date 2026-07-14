@@ -2,7 +2,7 @@
   "downloads": 2,
   "target": 20,
   "refresh_hours": 0,
-  "visible": false,
+  "visible": true,
   "early_access_deadline": null,
   "animals": {
     "1": {
