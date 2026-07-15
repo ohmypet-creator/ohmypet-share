@@ -1,5 +1,5 @@
 {
-  "downloads": 2,
+  "downloads": 10,
   "target": 20,
   "refresh_hours": 0,
   "visible": true,
@@ -11,11 +11,11 @@
     },
     "2": {
       "unlocked": true,
-      "type": "free"
+      "type": "community"
     },
     "3": {
       "unlocked": false,
-      "type": "paid"
+      "type": "soon"
     },
     "4": {
       "unlocked": false,
@@ -41,7 +41,8 @@
       "text": {
         "hu": "AI képgeneráló 🎨",
         "en": "AI image generator 🎨"
-      }
+      },
+      "style": "banner"
     }
   ]
 }
