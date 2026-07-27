@@ -29,7 +29,7 @@
   "ads": [
     {
       "id": "book1",
-      "visible": true,
+      "visible": false,
       "link": "https://books2read.com/u/mKZpKV",
       "image": "https://...",
       "text": {
@@ -40,7 +40,7 @@
     },
     {
       "id": "openart",
-      "visible": true,
+      "visible": false,
       "link": "https://openart.ai",
       "image": "https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/Screenshot_2026-06-20-22-20-03-593_com.android.chrome-edit.jpg",
       "text": {
