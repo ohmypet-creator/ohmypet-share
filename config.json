@@ -18,12 +18,12 @@
     "3": {
       "unlocked": false,
       "type": "soon",
-      "visible": true
+      "visible": false
     },
     "4": {
       "unlocked": false,
       "type": "soon",
-      "visible": true
+      "visible": false
     }
   },
   "ads": [
