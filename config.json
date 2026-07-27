@@ -35,7 +35,8 @@
       "text": {
         "hu": "Megjelent a könyvem! 📖",
         "en": "My book is out! 📖"
-      }
+      },
+      "type": "affiliate"
     },
     {
       "id": "openart",
@@ -46,7 +47,8 @@
         "hu": "AI képgeneráló 🎨",
         "en": "AI image generator 🎨"
       },
-      "style": "banner"
+      "style": "banner",
+      "type": "affiliate"
     }
   ]
 }
