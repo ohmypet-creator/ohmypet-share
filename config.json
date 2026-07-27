@@ -1,5 +1,5 @@
 {
-  "downloads": 10,
+  "downloads": 100,
   "target": 20,
   "refresh_hours": 0,
   "visible": true,
@@ -7,25 +7,29 @@
   "animals": {
     "1": {
       "unlocked": true,
-      "type": "free"
+      "type": "free",
+      "visible": true
     },
     "2": {
       "unlocked": true,
-      "type": "community"
+      "type": "community",
+      "visible": true
     },
     "3": {
       "unlocked": false,
-      "type": "soon"
+      "type": "soon",
+      "visible": true
     },
     "4": {
       "unlocked": false,
-      "type": "soon"
+      "type": "soon",
+      "visible": true
     }
   },
   "ads": [
     {
       "id": "book1",
-      "visible": false,
+      "visible": true,
       "link": "https://books2read.com/u/mKZpKV",
       "image": "https://...",
       "text": {
