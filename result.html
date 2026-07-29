@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Oh My Pet! – Result</title>
+<style>
+  :root{
+    --bg1:#6a3fd1; --bg2:#a05fe0;
+    --card:#ffffff; --text:#2b1a4a; --muted:#7a6a99;
+    --accent:#ff5f9e;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .card{
+    background:var(--card); color:var(--text);
+    border-radius:24px; max-width:420px; width:100%;
+    padding:32px 24px; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .logo{ font-size:40px; margin-bottom:4px; }
+  h1{ font-size:18px; margin:0 0 4px; opacity:.85; }
+  .sub{ color:var(--muted); font-size:14px; margin-bottom:20px; }
+  .result-img{
+    width:200px; height:200px; object-fit:contain;
+    margin: 4px auto 8px; display:block;
+  }
+  .result-badge{
+    font-size:38px; font-weight:800; letter-spacing:.02em;
+    margin-bottom:22px;
+  }
+  .result-badge.yes{ color:#1fae5f; }
+  .result-badge.no{ color:#e6486a; }
+  .info{
+    background:#f6f2ff; border-radius:16px; padding:16px 18px;
+    margin-bottom:22px; text-align:left;
+  }
+  html[dir="rtl"] .info{ text-align:right; }
+  .info-row{ margin-bottom:8px; font-size:15px; }
+  .info-row:last-child{ margin-bottom:0; }
+  .info-label{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.03em; display:block; }
+  .info-value{ font-weight:600; }
+  .question{ font-style:italic; }
+  .placeholder{ color:var(--muted); font-size:14px; }
+  .soft-link{
+    display:block; margin-top:6px; font-size:13px; color:var(--muted);
+    text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🐾</div>
+    <h1>Oh My Pet!</h1>
+    <div class="sub" id="subText"></div>
+
+    <img id="resultImg" class="result-img" alt="" style="display:none" />
+    <div id="resultBadge" class="result-badge" style="display:none"></div>
+
+    <div class="info" id="infoBox">
+      <div class="placeholder" id="loadingText"></div>
+    </div>
+
+    <a class="soft-link" id="storeLink" href="https://play.google.com/store/apps/details?id=com.ohmypet.app" target="_blank" rel="noopener"></a>
+  </div>
+
+<script>
+  // ⚠️ CSERÉLD LE ezt a két linket a saját Cloudflare R2 (vagy más) tárolóban
+  // elérhető, publikus kép-URL-jeidre! (ugyanazok, mint az index.html-ben)
+  const IMG_YES = 'https://IDE-JON-A-SAJAT-KEPED.r2.dev/axolotl-happy.jpg';
+  const IMG_NO  = 'https://IDE-JON-A-SAJAT-KEPED.r2.dev/axolotl-sad.jpg';
+
+  const I18N = {
+    hu: { sub:"Valaki megosztott veled egy döntést", from:"Kitől", when:"Mikor", question:"Kérdés",
+          loading:"Adatok betöltése...", noData:"Ehhez a linkhez nem tartozik döntés.",
+          store:"🐾 Szeretnéd te is kipróbálni? Töltsd le Androidra", yes:"Igen", no:"Nem" },
+    en: { sub:"Someone shared a decision with you", from:"From", when:"When", question:"Question",
+          loading:"Loading data...", noData:"This link doesn't contain a decision.",
+          store:"🐾 Want to try it yourself? Download for Android", yes:"Yes", no:"No" },
+    es: { sub:"Alguien compartió una decisión contigo", from:"De", when:"Cuándo", question:"Pregunta",
+          loading:"Cargando datos...", noData:"Este enlace no contiene ninguna decisión.",
+          store:"🐾 ¿Quieres probarlo? Descárgalo para Android", yes:"Sí", no:"No" },
+    zh: { sub:"有人和你分享了一个决定", from:"来自", when:"时间", question:"问题",
+          loading:"正在加载数据...", noData:"此链接不包含任何决定。",
+          store:"🐾 想自己试试吗？下载安卓版", yes:"是", no:"不是" },
+    hi: { sub:"किसी ने आपके साथ एक फैसला साझा किया है", from:"किससे", when:"कब", question:"सवाल",
+          loading:"डेटा लोड हो रहा है...", noData:"इस लिंक में कोई फैसला नहीं है।",
+          store:"🐾 खुद आज़माना चाहते हैं? Android के लिए डाउनलोड करें", yes:"हाँ", no:"नहीं" },
+    ar: { sub:"شارك أحدهم قرارًا معك", from:"من", when:"متى", question:"السؤال",
+          loading:"جارٍ تحميل البيانات...", noData:"لا يحتوي هذا الرابط على أي قرار.",
+          store:"🐾 تريد تجربته بنفسك؟ نزّله لأندرويد", yes:"نعم", no:"لا" },
+    pt: { sub:"Alguém compartilhou uma decisão com você", from:"De", when:"Quando", question:"Pergunta",
+          loading:"Carregando dados...", noData:"Este link não contém nenhuma decisão.",
+          store:"🐾 Quer experimentar? Baixe para Android", yes:"Sim", no:"Não" },
+    bn: { sub:"কেউ আপনার সাথে একটি সিদ্ধান্ত শেয়ার করেছে", from:"কার কাছ থেকে", when:"কখন", question:"প্রশ্ন",
+          loading:"ডেটা লোড হচ্ছে...", noData:"এই লিঙ্কে কোনো সিদ্ধান্ত নেই।",
+          store:"🐾 নিজে চেষ্টা করতে চান? Android-এর জন্য ডাউনলোড করুন", yes:"হ্যাঁ", no:"না" },
+    ru: { sub:"Кто-то поделился с вами решением", from:"От кого", when:"Когда", question:"Вопрос",
+          loading:"Загрузка данных...", noData:"По этой ссылке нет решения.",
+          store:"🐾 Хотите попробовать сами? Скачать для Android", yes:"Да", no:"Нет" },
+    ja: { sub:"誰かがあなたに決定を共有しました", from:"差出人", when:"日時", question:"質問",
+          loading:"データを読み込み中...", noData:"このリンクには決定が含まれていません。",
+          store:"🐾 自分でも試してみますか？Android版をダウンロード", yes:"はい", no:"いいえ" },
+    fr: { sub:"Quelqu'un a partagé une décision avec vous", from:"De la part de", when:"Quand", question:"Question",
+          loading:"Chargement des données...", noData:"Ce lien ne contient aucune décision.",
+          store:"🐾 Envie d'essayer ? Téléchargez pour Android", yes:"Oui", no:"Non" },
+    de: { sub:"Jemand hat eine Entscheidung mit dir geteilt", from:"Von", when:"Wann", question:"Frage",
+          loading:"Daten werden geladen...", noData:"Dieser Link enthält keine Entscheidung.",
+          store:"🐾 Selbst ausprobieren? Für Android herunterladen", yes:"Ja", no:"Nein" },
+    ko: { sub:"누군가 당신과 결정을 공유했습니다", from:"보낸 사람", when:"시간", question:"질문",
+          loading:"데이터 로딩 중...", noData:"이 링크에는 결정이 없습니다.",
+          store:"🐾 직접 해보고 싶으신가요? Android용 다운로드", yes:"예", no:"아니요" },
+    id: { sub:"Seseorang membagikan sebuah keputusan kepada Anda", from:"Dari", when:"Kapan", question:"Pertanyaan",
+          loading:"Memuat data...", noData:"Tautan ini tidak berisi keputusan.",
+          store:"🐾 Ingin coba sendiri? Unduh untuk Android", yes:"Ya", no:"Tidak" },
+    tr: { sub:"Biri seninle bir karar paylaştı", from:"Kimden", when:"Ne zaman", question:"Soru",
+          loading:"Veriler yükleniyor...", noData:"Bu bağlantıda bir karar bulunmuyor.",
+          store:"🐾 Kendin denemek ister misin? Android için indir", yes:"Evet", no:"Hayır" },
+    it: { sub:"Qualcuno ha condiviso una decisione con te", from:"Da", when:"Quando", question:"Domanda",
+          loading:"Caricamento dati...", noData:"Questo link non contiene una decisione.",
+          store:"🐾 Vuoi provarlo anche tu? Scarica per Android", yes:"Sì", no:"No" }
+  };
+  const RTL_LANGS = ['ar'];
+
+  function detectLang(urlLangParam) {
+    const supported = Object.keys(I18N);
+    const prefs = [];
+    if (Array.isArray(navigator.languages)) prefs.push(...navigator.languages);
+    if (navigator.language) prefs.push(navigator.language);
+    for (const p of prefs) {
+      const short = p.toLowerCase().split('-')[0];
+      if (supported.includes(short)) return short;
+    }
+    if (urlLangParam) {
+      const short = urlLangParam.toLowerCase().split('-')[0];
+      if (supported.includes(short)) return short;
+    }
+    return 'en';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const d = params.get('d');
+  const t = params.get('t');
+  const n = params.get('n');
+  const q = params.get('q');
+  const urlLang = params.get('lang');
+
+  const lang = detectLang(urlLang);
+  const L = I18N[lang];
+  document.documentElement.lang = lang;
+  if (RTL_LANGS.includes(lang)) document.documentElement.dir = 'rtl';
+
+  function safeDecode(b64) {
+    try { return decodeURIComponent(escape(atob(decodeURIComponent(b64)))); }
+    catch(e) { return null; }
+  }
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  const nickname = n ? safeDecode(n) : null;
+  const question = q ? safeDecode(q) : null;
+  let dateStr = null;
+  if (t) {
+    const ts = parseInt(t, 10);
+    if (!isNaN(ts)) {
+      const date = new Date(ts);
+      dateStr = date.toLocaleDateString(lang) + ' ' + date.toLocaleTimeString(lang, {hour:'2-digit', minute:'2-digit'});
+    }
+  }
+
+  let result = null;
+  if (d) {
+    try {
+      const decoded = decodeURIComponent(escape(atob(decodeURIComponent(d))));
+      const first = decoded.split('|')[0];
+      if (first === 'yes' || first === 'no') result = first;
+    } catch(e) { result = null; }
+  }
+
+  document.getElementById('subText').textContent = L.sub;
+  document.getElementById('loadingText').textContent = L.loading;
+  document.getElementById('storeLink').textContent = L.store;
+
+  if (result) {
+    const resultImg = document.getElementById('resultImg');
+    const resultBadge = document.getElementById('resultBadge');
+    resultImg.src = result === 'yes' ? IMG_YES : IMG_NO;
+    resultImg.style.display = 'block';
+    resultBadge.textContent = result === 'yes' ? L.yes : L.no;
+    resultBadge.className = 'result-badge ' + result;
+    resultBadge.style.display = 'block';
+  }
+
+  const infoBox = document.getElementById('infoBox');
+  let html = '';
+  if (nickname) {
+    html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.from) +
+            '</span><span class="info-value">' + escapeHtml(nickname) + '</span></div>';
+  }
+  if (dateStr) {
+    html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.when) +
+            '</span><span class="info-value">' + dateStr + '</span></div>';
+  }
+  if (question) {
+    html += '<div class="info-row"><span class="info-label">' + escapeHtml(L.question) +
+            '</span><span class="info-value question">„' + escapeHtml(question) + '”</span></div>';
+  }
+  if (!html) html = '<div class="placeholder">' + escapeHtml(L.noData) + '</div>';
+  infoBox.innerHTML = html;
+</script>
+</body>
+</html>
