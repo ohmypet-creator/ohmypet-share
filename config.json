@@ -1,5 +1,5 @@
 {
-  "downloads": 100,
+  "downloads": 30,
   "target": 20,
   "refresh_hours": 0,
   "visible": true,
@@ -12,7 +12,7 @@
     },
     "2": {
       "unlocked": true,
-      "type": "community",
+      "type": "free",
       "visible": true
     },
     "3": {
