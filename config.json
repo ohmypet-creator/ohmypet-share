@@ -7,11 +7,11 @@
   "animals": {
     "1": {
       "unlocked": true,
-      "type": "free",
+      "type": "soon",
       "visible": true
     },
     "2": {
-      "unlocked": true,
+      "unlocked": false,
       "type": "paid",
       "visible": true
     },
