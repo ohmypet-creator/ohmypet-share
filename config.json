@@ -1,6 +1,6 @@
 {
-  "downloads": 30,
-  "target": 20,
+  "downloads": 20,
+  "target": 30,
   "refresh_hours": 0,
   "visible": true,
   "early_access_deadline": null,
@@ -29,7 +29,7 @@
   "ads": [
     {
       "id": "book1",
-      "visible": false,
+      "visible": true,
       "link": "https://books2read.com/u/mKZpKV",
       "image": "https://...",
       "text": {
@@ -40,7 +40,7 @@
     },
     {
       "id": "openart",
-      "visible": false,
+      "visible": true,
       "link": "https://openart.ai",
       "image": "https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/Screenshot_2026-06-20-22-20-03-593_com.android.chrome-edit.jpg",
       "text": {
