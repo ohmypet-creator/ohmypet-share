@@ -11,8 +11,8 @@
       "visible": true
     },
     "2": {
-      "unlocked": false,
-      "type": "community",
+      "unlocked": true,
+      "type": "free",
       "visible": true
     },
     "3": {
