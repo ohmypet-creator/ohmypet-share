@@ -11,7 +11,7 @@
       "visible": true
     },
     "2": {
-      "unlocked": true,
+      "unlocked": false,
       "type": "community",
       "visible": true
     },
