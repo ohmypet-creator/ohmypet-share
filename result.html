@@ -60,6 +60,7 @@
     <h1>Oh My Pet!</h1>
     <div class="sub" id="subText"></div>
 
+    <video id="resultVideo" class="result-img" style="display:none" muted autoplay playsinline loop></video>
     <img id="resultImg" class="result-img" alt="" style="display:none" />
     <div id="resultBadge" class="result-badge" style="display:none"></div>
 
@@ -75,6 +76,16 @@
   // elérhető, publikus kép-URL-jeidre! (ugyanazok, mint az index.html-ben)
   const IMG_YES = 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/Axolot_Yes.png';
   const IMG_NO  = 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/Axolot_No.png';
+
+  // ⚠️ ÁLLAT-SPECIFIKUS EREDMÉNY-VIDEÓK – ha egy adott állathoz itt megadsz egy
+  // publikus videó-URL-t, az fog lejátszódni a statikus kép helyett, amikor az
+  // adott állattal küldött megosztott döntést nyitja meg valaki (böngészőből,
+  // pl. iPhone-on, ahol nincs natív app). Ha egy állathoz nincs itt bejegyzés
+  // (vagy üres az URL), az oldal automatikusan visszaesik a fenti axolotl-képre.
+  const ANIMAL_VIDEOS = {
+    panda:   { yes: 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/panda_yes.mp4',   no: 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/panda_no.mp4' },
+    axolotl: { yes: 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/axolotl_yes.mp4', no: 'https://pub-deeaaa5b43db461ca959ee10c8366792.r2.dev/axolotl_no.mp4' },
+  };
 
   const I18N = {
     hu: { sub:"Valaki megosztott veled egy döntést", from:"Kitől", when:"Mikor", question:"Kérdés",
@@ -150,6 +161,7 @@
   const n = params.get('n');
   const q = params.get('q');
   const urlLang = params.get('lang');
+  const animalId = params.get('a');
 
   const lang = detectLang(urlLang);
   const L = I18N[lang];
@@ -192,9 +204,25 @@
 
   if (result) {
     const resultImg = document.getElementById('resultImg');
+    const resultVideo = document.getElementById('resultVideo');
+    const animalVid = animalId && ANIMAL_VIDEOS[animalId] ? ANIMAL_VIDEOS[animalId][result] : null;
+
+    if (animalVid) {
+      resultVideo.src = animalVid;
+      resultVideo.style.display = 'block';
+      resultVideo.play().catch(() => {
+        // Ha valamiért nem tud automatikusan elindulni (pl. böngésző-korlátozás),
+        // essünk vissza a statikus képre, nehogy üres/fekete felület maradjon.
+        resultVideo.style.display = 'none';
+        resultImg.src = result === 'yes' ? IMG_YES : IMG_NO;
+        resultImg.style.display = 'block';
+      });
+    } else {
+      resultImg.src = result === 'yes' ? IMG_YES : IMG_NO;
+      resultImg.style.display = 'block';
+    }
+
     const resultBadge = document.getElementById('resultBadge');
-    resultImg.src = result === 'yes' ? IMG_YES : IMG_NO;
-    resultImg.style.display = 'block';
     resultBadge.textContent = result === 'yes' ? L.yes : L.no;
     resultBadge.className = 'result-badge ' + result;
     resultBadge.style.display = 'block';
